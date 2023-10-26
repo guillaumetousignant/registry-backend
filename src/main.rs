@@ -1,16 +1,26 @@
+use registry_backend::database::run_migrations;
 use registry_backend::routes::authorize;
+use registry_backend::routes::items;
 use std::error::Error;
-
-#[rocket::get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
-}
 
 #[rocket::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+    run_migrations()?;
+
     let _rocket = rocket::build()
-        .mount("/", rocket::routes![index])
-        .mount("/api/v1/authorize", rocket::routes![authorize::authorize])
+        .mount(
+            "/api/v1/authorize",
+            rocket::routes![
+                authorize::authorize,
+                authorize::authorize_admin,
+                authorize::get_user_id_from_jwt,
+                authorize::get_username_from_jwt,
+            ],
+        )
+        .mount(
+            "/api/v1/items",
+            rocket::routes![items::items, items::add_item,],
+        )
         .launch()
         .await?;
 

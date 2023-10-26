@@ -1,5 +1,6 @@
-pub mod authorize;
-pub mod error;
+mod error;
+mod items;
 
-pub use authorize::Authorize;
 pub use error::Error;
+pub use error::ErrorStruct;
+pub use items::Items;

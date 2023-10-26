@@ -15,3 +15,6 @@ target/
 
 # VSCode stuff
 .vscode/
+
+# Environment file
+.env

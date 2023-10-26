@@ -10,3 +10,10 @@ rocket = { version = "=0.5.0-rc.3", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 diesel = { version = "2.1", features = ["sqlite"] }
 dotenvy = "0.15"
+rocket-jwt = "0.5"
+jsonwebtoken = "9.1"
+base64 = "0.21"
+thiserror = "1.0"
+diesel_migrations = { version = "2.1", features = ["sqlite"] }
+env_logger = "0.10"
+log = "0.4"
