@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         )
         .mount(
             "/api/v1/items",
-            rocket::routes![items::items, items::add_item,],
+            rocket::routes![items::items, items::add_item, items::claim_item],
         )
         .launch()
         .await?;
