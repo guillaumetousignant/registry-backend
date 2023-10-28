@@ -1,6 +1,6 @@
 use rocket_jwt::jwt;
 
-static SECRET_KEY: &str = "touche-poulet 2023-10-24 registre Ari & Guillaume";
+static SECRET_KEY: &str = env!("REGISTRYSECRETKEY");
 #[jwt(SECRET_KEY)]
 pub struct UserClaim {
     pub id: String,
