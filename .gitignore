@@ -21,3 +21,6 @@ target/
 
 # Database
 database.sql
+
+# Secret key
+secret_key.txt

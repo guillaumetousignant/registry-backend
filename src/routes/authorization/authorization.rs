@@ -1,6 +1,6 @@
 use rocket_jwt::jwt;
 
-static SECRET_KEY: &str = env!("REGISTRYSECRETKEY");
+static SECRET_KEY: &'static str = include_str!(env!("REGISTRYSECRETKEY_FILE", "specify the path to the file containing the secret key with the REGISTRYSECRETKEY_FILE environment variable"));
 #[jwt(SECRET_KEY)]
 pub struct UserClaim {
     pub id: String,
