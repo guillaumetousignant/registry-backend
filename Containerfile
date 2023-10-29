@@ -9,7 +9,7 @@ RUN dnf -y update && \
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-RUN --mount=type=secret,id=registry_secret_key,target=registry_secret_key REGISTRYSECRETKEY_FILE=/registry_secret_key cargo install --path . --root /usr/local
+RUN --mount=type=secret,id=registry_secret_key REGISTRYSECRETKEY_FILE=/run/secrets/registry_secret_key cargo install --path . --root /usr/local
 
 RUN dnf remove git gcc sqlite-devel
 
