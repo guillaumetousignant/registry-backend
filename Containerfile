@@ -23,8 +23,6 @@ COPY diesel.toml /usr/local/src/registry-backend
 
 RUN --mount=type=secret,id=registry_secret_key REGISTRYSECRETKEY_FILE=/run/secrets/registry_secret_key $HOME/.cargo/bin/cargo install --path . --root /usr/local
 
-RUN ldd /usr/local/bin/registry-backend
-
 FROM fedora:latest
 
 COPY --from=rustbuild /usr/local/bin/registry-backend /usr/local/bin/registry-backend
