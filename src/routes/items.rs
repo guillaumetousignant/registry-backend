@@ -2,7 +2,8 @@ use super::authorization::UserClaim;
 use super::requests;
 use super::responses;
 use crate::database::NewItem;
-use crate::database::{assign_item, get_all_items, insert_item, DatabaseQueryError};
+use crate::database::{assign_item, delete_item, get_all_items, insert_item, DatabaseQueryError};
+use log::info;
 use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::Json;
@@ -22,6 +23,8 @@ pub fn items(user: UserClaim) -> Result<Json<responses::Items>, (Status, Json<re
                     }),
                 )
             })?;
+
+            info!("Sent {} items", items.len());
 
             Ok(Json(responses::Items { data: items }))
         }
@@ -55,6 +58,8 @@ pub fn add_item(
                     }),
                 )
             })?;
+
+            info!("Added item {}", item.0);
 
             Ok(status::Accepted(None))
         }
@@ -99,6 +104,8 @@ pub fn claim_item(
                 ),
             })?;
 
+            info!("Claimed item {id} by {}", assigned.assigned);
+
             Ok(status::Accepted(None))
         }
         _ => Err((
@@ -111,4 +118,59 @@ pub fn claim_item(
             }),
         )),
     }
+}
+
+#[rocket::post("/<id>/delete")]
+pub fn remove_item(
+    id: i32,
+    user: UserClaim,
+) -> Result<status::Accepted<String>, (Status, Json<responses::Error>)> {
+    match user.id.as_str() {
+        "admin" => {
+            delete_item(id).map_err(|e| {
+                (
+                    Status::InternalServerError,
+                    Json(responses::Error {
+                        error: responses::ErrorStruct {
+                            message: e.to_string(),
+                            code: 49,
+                        },
+                    }),
+                )
+            })?;
+
+            info!("Deleted item {id}");
+
+            Ok(status::Accepted(None))
+        }
+        _ => Err((
+            Status::Unauthorized,
+            Json(responses::Error {
+                error: responses::ErrorStruct {
+                    message: "unauthorized".to_owned(),
+                    code: 50,
+                },
+            }),
+        )),
+    }
+}
+
+#[rocket::options("/")]
+pub fn options_items() -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+}
+
+#[rocket::options("/add")]
+pub fn options_add_item() -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+}
+
+#[rocket::options("/<_id>/claim")]
+pub fn options_claim_item(_id: i32) -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+}
+
+#[rocket::options("/<_id>/delete")]
+pub fn options_remove_item(_id: i32) -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
 }

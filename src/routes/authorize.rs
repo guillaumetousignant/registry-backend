@@ -20,12 +20,12 @@ pub fn authorize_admin(admin: Admin) -> String {
     token
 }
 
-#[rocket::get("/user_id")]
-pub fn get_user_id_from_jwt(user: UserClaim) -> String {
-    format!("user id is {}", user.id)
+#[rocket::options("/")]
+pub fn options_authorize() -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
 }
 
-#[rocket::get("/username")]
-pub fn get_username_from_jwt(user: UserClaim) -> String {
-    format!("username is {}", user.username)
+#[rocket::options("/admin")]
+pub fn options_authorize_admin() -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
 }

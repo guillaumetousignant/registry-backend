@@ -7,6 +7,7 @@ pub mod schema;
 pub use establish_connection::establish_connection;
 pub use establish_connection::DatabaseConnectionError;
 pub use item_queries::assign_item;
+pub use item_queries::delete_item;
 pub use item_queries::get_all_items;
 pub use item_queries::insert_item;
 pub use item_queries::DatabaseQueryError;

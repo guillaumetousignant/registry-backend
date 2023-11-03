@@ -33,20 +33,29 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     run_migrations()?;
 
     let _rocket = rocket::build()
-        .attach(CORS)
         .mount(
             "/api/v1/authorize",
             rocket::routes![
                 authorize::authorize,
                 authorize::authorize_admin,
-                authorize::get_user_id_from_jwt,
-                authorize::get_username_from_jwt,
+                authorize::options_authorize,
+                authorize::options_authorize_admin,
             ],
         )
         .mount(
             "/api/v1/items",
-            rocket::routes![items::items, items::add_item, items::claim_item],
+            rocket::routes![
+                items::items,
+                items::add_item,
+                items::claim_item,
+                items::remove_item,
+                items::options_items,
+                items::options_add_item,
+                items::options_claim_item,
+                items::options_remove_item,
+            ],
         )
+        .attach(CORS)
         .launch()
         .await?;
 
