@@ -2,7 +2,9 @@ use super::authorization::UserClaim;
 use super::requests;
 use super::responses;
 use crate::database::NewItem;
-use crate::database::{assign_item, delete_item, get_all_items, insert_item, DatabaseQueryError};
+use crate::database::{
+    assign_item, delete_item, get_all_items, insert_item, unassign_item, DatabaseQueryError,
+};
 use log::info;
 use rocket::http::Status;
 use rocket::response::status;
@@ -155,6 +157,50 @@ pub fn remove_item(
     }
 }
 
+#[rocket::post("/<id>/unclaim")]
+pub fn unclaim_item(
+    id: i32,
+    user: UserClaim,
+) -> Result<status::Accepted<String>, (Status, Json<responses::Error>)> {
+    match user.id.as_str() {
+        "admin" => {
+            unassign_item(id).map_err(|e| match e {
+                DatabaseQueryError::NotUpdated => (
+                    Status::Conflict,
+                    Json(responses::Error {
+                        error: responses::ErrorStruct {
+                            message: e.to_string(),
+                            code: 51,
+                        },
+                    }),
+                ),
+                _ => (
+                    Status::InternalServerError,
+                    Json(responses::Error {
+                        error: responses::ErrorStruct {
+                            message: e.to_string(),
+                            code: 52,
+                        },
+                    }),
+                ),
+            })?;
+
+            info!("Unclaimed item {id}");
+
+            Ok(status::Accepted(None))
+        }
+        _ => Err((
+            Status::Unauthorized,
+            Json(responses::Error {
+                error: responses::ErrorStruct {
+                    message: "unauthorized".to_owned(),
+                    code: 53,
+                },
+            }),
+        )),
+    }
+}
+
 #[rocket::options("/")]
 pub fn options_items() -> rocket::response::status::Accepted<String> {
     rocket::response::status::Accepted(Some("Accepted".to_owned()))
@@ -172,5 +218,10 @@ pub fn options_claim_item(_id: i32) -> rocket::response::status::Accepted<String
 
 #[rocket::options("/<_id>/delete")]
 pub fn options_remove_item(_id: i32) -> rocket::response::status::Accepted<String> {
+    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+}
+
+#[rocket::options("/<_id>/unclaim")]
+pub fn options_unclaim_item(_id: i32) -> rocket::response::status::Accepted<String> {
     rocket::response::status::Accepted(Some("Accepted".to_owned()))
 }

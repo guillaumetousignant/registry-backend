@@ -10,6 +10,7 @@ pub use item_queries::assign_item;
 pub use item_queries::delete_item;
 pub use item_queries::get_all_items;
 pub use item_queries::insert_item;
+pub use item_queries::unassign_item;
 pub use item_queries::DatabaseQueryError;
 pub use models::Item;
 pub use models::NewItem;

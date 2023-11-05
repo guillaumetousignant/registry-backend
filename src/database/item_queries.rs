@@ -102,3 +102,22 @@ pub fn delete_item(item_id: i32) -> Result<(), DatabaseQueryError> {
         _ => Err(DatabaseQueryError::TooManyDeleted(count)),
     }
 }
+
+pub fn unassign_item(item_id: i32) -> Result<(), DatabaseQueryError> {
+    use crate::database::schema::items::dsl::*;
+
+    let mut connection = establish_connection().map_err(|e| DatabaseQueryError::Connection(e))?;
+
+    let count = diesel::update(items.filter(id.eq(item_id).and(assigned.is_not_null())))
+        .set(assigned.eq(None::<&str>))
+        .execute(&mut connection)
+        .map_err(|e| DatabaseQueryError::UpdateQuery(e))?;
+
+    info!("Unassigned {count} item(s)");
+
+    match count {
+        0 => Err(DatabaseQueryError::NotUpdated),
+        1 => Ok(()),
+        _ => Err(DatabaseQueryError::TooManyUpdated(count)),
+    }
+}

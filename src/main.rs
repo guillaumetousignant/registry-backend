@@ -49,10 +49,12 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                 items::add_item,
                 items::claim_item,
                 items::remove_item,
+                items::unclaim_item,
                 items::options_items,
                 items::options_add_item,
                 items::options_claim_item,
                 items::options_remove_item,
+                items::options_unclaim_item,
             ],
         )
         .attach(CORS)
