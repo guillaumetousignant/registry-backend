@@ -121,3 +121,22 @@ pub fn unassign_item(item_id: i32) -> Result<(), DatabaseQueryError> {
         _ => Err(DatabaseQueryError::TooManyUpdated(count)),
     }
 }
+
+pub fn update_item_link(item_id: i32, new_link: &str) -> Result<(), DatabaseQueryError> {
+    use crate::database::schema::items::dsl::*;
+
+    let mut connection = establish_connection().map_err(|e| DatabaseQueryError::Connection(e))?;
+
+    let count = diesel::update(items.filter(id.eq(item_id)))
+        .set(link.eq(new_link))
+        .execute(&mut connection)
+        .map_err(|e| DatabaseQueryError::UpdateQuery(e))?;
+
+    info!("Updated link of {count} item(s)");
+
+    match count {
+        0 => Err(DatabaseQueryError::NotUpdated),
+        1 => Ok(()),
+        _ => Err(DatabaseQueryError::TooManyUpdated(count)),
+    }
+}
