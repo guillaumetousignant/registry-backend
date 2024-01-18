@@ -1,0 +1,402 @@
+openapi: 3.0.3
+info:
+  title: Baby registry API
+  description: |-
+    This API provides access to a baby registry. It can be used to view, add, and claim items.
+  version: 1.0.1
+servers:
+  - url: https://api.arietguillaume.ca/api/v1
+tags:
+  - name: Authorization
+    description: How to get access to the API
+  - name: Items
+    description: Interact with items from the registry
+paths:
+  /authorize:
+    get:
+      summary: Authorizes a regular user
+      description: Retrieves a regular user bearer token with basic auth
+      tags:
+        - Authorization
+      responses:
+        "200":
+          description: User is authorized, bearer token is emitted
+          content:
+            text/plain:
+              schema:
+                type: string
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+      security:
+        - basicAuth: []
+
+  /authorize/admin:
+    get:
+      summary: Authorizes an admin user
+      description: Retrieves an admin user bearer token with basic auth
+      tags:
+        - Authorization
+      responses:
+        "200":
+          description: User is authorized, bearer token is emitted
+          content:
+            text/plain:
+              schema:
+                type: string
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+      security:
+        - basicAuthAdmin: []
+
+  /items:
+    get:
+      summary: Get the items
+      description: Retrieves a list of all the items
+      tags:
+        - Items
+      responses:
+        "200":
+          description: Ok, list of items in the registry is emitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Items"
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+      security:
+        - bearerAuth: []
+
+  /items/add:
+    post:
+      summary: Add an item
+      description: Adds an item to the list of items
+      tags:
+        - Items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewItem"
+      responses:
+        "202":
+          description: Accepted, item added
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Bad request, missing body
+          content:
+            test/html:
+              schema:
+                type: string
+        "422":
+          description: Bad request, missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LongError"
+      security:
+        - bearerAuthAdmin: []
+
+  /items/{id}/claim:
+    post:
+      summary: Claim an item
+      description: Sets the assigned field of an item in the list of items
+      tags:
+        - Items
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Claim"
+      responses:
+        "202":
+          description: Accepted, item claimed
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Bad request, missing body
+          content:
+            test/html:
+              schema:
+                type: string
+        "409":
+          description: Conflict, item already claimed or does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuth: []
+
+  /items/{id}/delete:
+    post:
+      summary: Delete an item
+      description: Removes an item from the list of items
+      tags:
+        - Items
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "202":
+          description: Accepted, item deleted
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error, maybe item does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuthAdmin: []
+
+  /items/{id}/unclaim:
+    post:
+      summary: Unclaim an item
+      description: Empties the assigned field of an item in the list of items
+      tags:
+        - Items
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "202":
+          description: Accepted, item unclaimed
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Conflict, item not claimed or does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuthAdmin: []
+
+  /items/{id}/link:
+    post:
+      summary: Update the link of an item
+      description: Sets the link field of an item in the list of items
+      tags:
+        - Items
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Link"
+      responses:
+        "202":
+          description: Accepted, item unclaimed
+        "401":
+          description: User is unauthorized
+          content:
+            test/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Bad request, missing body
+          content:
+            test/html:
+              schema:
+                type: string
+        "500":
+          description: Internal server error, maybe item does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - bearerAuthAdmin: []
+
+components:
+  schemas:
+    Item:
+      type: object
+      required:
+        - assigned
+        - colour
+        - id
+        - link
+        - name
+      properties:
+        assigned:
+          type: string
+          nullable: true
+        colour:
+          type: string
+        id:
+          type: integer
+        link:
+          type: string
+        name:
+          type: string
+
+    Items:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+
+    NewItem:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - colour
+            - id
+            - link
+            - name
+          properties:
+            assigned:
+              type: string
+              nullable: true
+            colour:
+              type: string
+            id:
+              type: integer
+            link:
+              type: string
+            name:
+              type: string
+
+    Claim:
+      type: object
+      required:
+        - assigned
+      properties:
+        assigned:
+          type: string
+
+    Link:
+      type: object
+      required:
+        - link
+      properties:
+        link:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+
+    LongError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - description
+            - reason
+          properties:
+            code:
+              type: string
+            description:
+              type: string
+            reason:
+              type: string
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+
+    basicAuthAdmin:
+      type: http
+      scheme: basic
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+    bearerAuthAdmin:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
