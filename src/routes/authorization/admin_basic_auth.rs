@@ -22,7 +22,7 @@ impl<'r> FromRequest<'r> for Admin {
         let key = match key {
             Ok(key) => key,
             Err(e) => {
-                return request::Outcome::Failure((
+                return request::Outcome::Error((
                     Status::Unauthorized,
                     BasicAuthError::KeyNotSet(e),
                 ))
@@ -35,10 +35,10 @@ impl<'r> FromRequest<'r> for Admin {
                     username: basic.username,
                 }),
                 false => {
-                    request::Outcome::Failure((Status::Unauthorized, BasicAuthError::Unauthorized))
+                    request::Outcome::Error((Status::Unauthorized, BasicAuthError::Unauthorized))
                 }
             },
-            request::Outcome::Failure(e) => request::Outcome::Failure(e),
+            request::Outcome::Error(e) => request::Outcome::Error(e),
             request::Outcome::Forward(e) => request::Outcome::Forward(e),
         }
     }

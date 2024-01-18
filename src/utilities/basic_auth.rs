@@ -39,7 +39,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
             Some(auth_header) => {
                 let words = auth_header.split_whitespace().collect::<Vec<_>>();
                 if words.len() != 2 {
-                    return request::Outcome::Failure((
+                    return request::Outcome::Error((
                         Status::Unauthorized,
                         BasicAuthError::IncorrectHeaderFormat(words.len()),
                     ));
@@ -47,7 +47,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
 
                 let (auth_type, credentials) = (words[0], words[1]);
                 if auth_type != "Basic" {
-                    return request::Outcome::Failure((
+                    return request::Outcome::Error((
                         Status::Unauthorized,
                         BasicAuthError::IncorrectAuthType(auth_type.to_owned()),
                     ));
@@ -57,7 +57,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
                 let credentials = match credentials {
                     Ok(credentials) => credentials,
                     Err(e) => {
-                        return request::Outcome::Failure((
+                        return request::Outcome::Error((
                             Status::BadRequest,
                             BasicAuthError::Base64Decode(e),
                         ));
@@ -68,7 +68,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
                 let credentials = match credentials {
                     Ok(credentials) => credentials,
                     Err(e) => {
-                        return request::Outcome::Failure((
+                        return request::Outcome::Error((
                             Status::BadRequest,
                             BasicAuthError::StringDecode(e),
                         ));
@@ -77,7 +77,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
 
                 let words = credentials.split(":").collect::<Vec<_>>();
                 if words.len() != 2 {
-                    return request::Outcome::Failure((
+                    return request::Outcome::Error((
                         Status::BadRequest,
                         BasicAuthError::IncorrectCredentialsFormat(words.len()),
                     ));
@@ -87,9 +87,7 @@ impl<'r> FromRequest<'r> for BasicAuth {
 
                 request::Outcome::Success(BasicAuth { username, password })
             }
-            None => {
-                request::Outcome::Failure((Status::Unauthorized, BasicAuthError::MissingHeader))
-            }
+            None => request::Outcome::Error((Status::Unauthorized, BasicAuthError::MissingHeader)),
         }
     }
 }

@@ -22,10 +22,10 @@ pub fn authorize_admin(admin: Admin) -> String {
 
 #[rocket::options("/")]
 pub fn options_authorize() -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Authorized".to_owned())
 }
 
 #[rocket::options("/admin")]
 pub fn options_authorize_admin() -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Authorized".to_owned())
 }

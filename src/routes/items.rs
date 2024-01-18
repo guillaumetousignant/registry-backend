@@ -64,7 +64,7 @@ pub fn add_item(
 
             info!("Added item {}", item.0);
 
-            Ok(status::Accepted(None))
+            Ok(status::Accepted("Added".to_owned()))
         }
         _ => Err((
             Status::Unauthorized,
@@ -109,7 +109,7 @@ pub fn claim_item(
 
             info!("Claimed item {id} by {}", assigned.assigned);
 
-            Ok(status::Accepted(None))
+            Ok(status::Accepted("Claimed".to_owned()))
         }
         _ => Err((
             Status::Unauthorized,
@@ -144,7 +144,7 @@ pub fn remove_item(
 
             info!("Deleted item {id}");
 
-            Ok(status::Accepted(None))
+            Ok(status::Accepted("Deleted".to_owned()))
         }
         _ => Err((
             Status::Unauthorized,
@@ -188,7 +188,7 @@ pub fn unclaim_item(
 
             info!("Unclaimed item {id}");
 
-            Ok(status::Accepted(None))
+            Ok(status::Accepted("Unclaimed".to_owned()))
         }
         _ => Err((
             Status::Unauthorized,
@@ -224,7 +224,7 @@ pub fn link_item(
 
             info!("Updated item {id} link to {}", link.link);
 
-            Ok(status::Accepted(None))
+            Ok(status::Accepted("Link updated".to_owned()))
         }
         _ => Err((
             Status::Unauthorized,
@@ -240,30 +240,30 @@ pub fn link_item(
 
 #[rocket::options("/")]
 pub fn options_items() -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Accepted".to_owned())
 }
 
 #[rocket::options("/add")]
 pub fn options_add_item() -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Accepted".to_owned())
 }
 
 #[rocket::options("/<_id>/claim")]
 pub fn options_claim_item(_id: i32) -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Accepted".to_owned())
 }
 
 #[rocket::options("/<_id>/delete")]
 pub fn options_remove_item(_id: i32) -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Accepted".to_owned())
 }
 
 #[rocket::options("/<_id>/unclaim")]
 pub fn options_unclaim_item(_id: i32) -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Accepted".to_owned())
 }
 
 #[rocket::options("/<_id>/link")]
 pub fn options_link_item(_id: i32) -> rocket::response::status::Accepted<String> {
-    rocket::response::status::Accepted(Some("Accepted".to_owned()))
+    rocket::response::status::Accepted("Accepted".to_owned())
 }
